@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat in corso</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="gradient-bg">
+
+<div class="top-bar">
+  <div class="logo">🤖 In Conversazione</div>
+  <div class="chat-status" id="chat-status">Caricamento...</div>
+</div>
+
+<div class="chat-wrapper glassy-card">
+  <div class="chat-container" id="chat-container">
+    <div class="message user">
+      <div class="avatar user-avatar">👤</div>
+      <div class="bubble">
+        <p>{{ initial_question }}</p>
+      </div>
+    </div>
+    <!-- L'indicatore di "pensiero" verrà sempre spostato alla fine con JS -->
+  </div>
+  <div class="thinking hidden" id="thinking">
+    <div class="typing-indicator">
+      <span></span><span></span><span></span>
+    </div>
+    <p>L'assistente sta pensando...</p>
+  </div>
+  <button id="scroll-bottom-btn" class="scroll-bottom-btn" title="Vai in fondo">↓</button>
+  <div class="summary-container hidden" id="summary-container">
+    <h3>Sintesi della Discussione</h3>
+    <pre id="summary"></pre>
+    <button class="copy-btn neon-btn" id="copy-summary-btn">📋 Copia Sintesi</button>
+  </div>
+  <div class="chat-footer" id="footer-buttons" style="display:none;">
+    <a href="/" class="back-btn neon-btn">← Torna alla Pagina Iniziale</a>
+  </div>
+</div>
+
+<script>
+  const discussionId = "{{ discussion_id }}";
+  const chatContainer = document.getElementById('chat-container');
+  const thinking = document.getElementById('thinking');
+  const summaryContainer = document.getElementById('summary-container');
+  const summaryEl = document.getElementById('summary');
+  const footerButtons = document.getElementById('footer-buttons');
+  const chatStatus = document.getElementById('chat-status');
+  const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
+  const copySummaryBtn = document.getElementById('copy-summary-btn');
+
+  let previousMessageCount = 1;
+
+  async function fetchUpdates() {
+    const res = await fetch(`/get_updates/${discussionId}`);
+    const data = await res.json();
+
+    // Rimuove tutti i messaggi assistant e i successivi user (tranne il primo)
+    chatContainer.querySelectorAll('.message.assistant').forEach(m => m.remove());
+    chatContainer.querySelectorAll('.message.user:not(:first-child)').forEach(m => m.remove());
+
+    let messages = data.messages || [];
+
+    for (let i = 1; i < messages.length; i++) {
+      const msg = messages[i];
+      let div = document.createElement('div');
+      div.classList.add('message');
+      div.classList.add(msg.role === 'user' ? 'user' : 'assistant');
+
+      let avatar = document.createElement('div');
+      avatar.classList.add('avatar', msg.role === 'user' ? 'user-avatar' : 'assistant-avatar');
+      avatar.textContent = msg.role === 'user' ? '👤' : '🤖';
+
+      let bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      let p = document.createElement('p');
+      p.textContent = msg.content;
+      bubble.appendChild(p);
+
+      div.appendChild(avatar);
+      div.appendChild(bubble);
+      chatContainer.appendChild(div);
+    }
+
+    // Posiziona l'indicatore di pensiero sempre alla fine, se non è finito
+    if (!data.finished) {
+      thinking.classList.remove('hidden');
+      chatContainer.appendChild(thinking);
+    } else {
+      thinking.classList.add('hidden');
+    }
+
+    // Aggiorna lo stato della chat
+    if (messages.length !== previousMessageCount) {
+      chatStatus.textContent = `Messaggi: ${messages.length}`;
+      previousMessageCount = messages.length;
+    }
+
+    if (data.finished) {
+      if (data.summary) {
+        summaryContainer.classList.remove('hidden');
+        summaryEl.textContent = data.summary;
+      }
+      footerButtons.style.display = 'flex';
+      chatStatus.textContent = "Discussione terminata";
+    }
+
+    // Scrolla in basso
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // Polling ogni 3 secondi
+  setInterval(fetchUpdates, 3000);
+  fetchUpdates();
+
+  // Bottone scroll bottom
+  chatContainer.addEventListener('scroll', () => {
+    const distanceFromBottom = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight);
+    if (distanceFromBottom > 200) {
+      scrollBottomBtn.style.display = 'block';
+    } else {
+      scrollBottomBtn.style.display = 'none';
+    }
+  });
+
+  scrollBottomBtn.addEventListener('click', () => {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  });
+
+  // Copia sintesi
+  copySummaryBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(summaryEl.textContent)
+      .then(() => {
+        copySummaryBtn.textContent = "✅ Copiato!";
+        setTimeout(() => copySummaryBtn.textContent = "📋 Copia Sintesi", 2000);
+      });
+  });
+</script>
+
+</body>
+</html>

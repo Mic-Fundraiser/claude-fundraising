@@ -24,7 +24,7 @@
     </div>
   </div>
   
-  <!-- Indicatore di "sta pensando" -->
+  <!-- Indicatore di "sta pensando" sempre presente nel DOM, gestito via classe .hidden -->
   <div class="thinking hidden" id="thinking">
     <div class="typing-indicator">
       <span></span><span></span><span></span>
@@ -56,6 +56,7 @@
   const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
   const copySummaryBtn = document.getElementById('copy-summary-btn');
 
+  // Contiamo già il primo messaggio dell'utente come mostrato
   let lastMessageCount = 1;
 
   async function fetchUpdates() {
@@ -93,16 +94,21 @@
         chatContainer.appendChild(div);
       }
       
+      // Aggiorna il conteggio
       lastMessageCount = messages.length;
+      
+      // Scrolla in basso dopo aver aggiunto i nuovi messaggi
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
+    // Aggiorna stato chat
     if (data.finished) {
       chatStatus.textContent = "Discussione terminata";
     } else {
       chatStatus.textContent = `Messaggi: ${messages.length}`;
     }
 
+    // Se finito e abbiamo sintesi
     if (data.finished && data.summary) {
       summaryContainer.classList.remove('hidden');
       summaryEl.textContent = data.summary;
@@ -110,9 +116,11 @@
     }
   }
 
+  // Polling ogni 3 secondi
   setInterval(fetchUpdates, 3000);
   fetchUpdates();
 
+  // Bottone scroll bottom appare se scroll in alto
   chatContainer.addEventListener('scroll', () => {
     const distanceFromBottom = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight);
     if (distanceFromBottom > 200) {
@@ -126,6 +134,7 @@
     chatContainer.scrollTop = chatContainer.scrollHeight;
   });
 
+  // Copia sintesi negli appunti
   copySummaryBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(summaryEl.textContent)
       .then(() => {

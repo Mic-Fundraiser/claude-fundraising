@@ -23,14 +23,14 @@ class EnhancedDiscussion:
 
     def get_follow_up_question(self):
         system_prompt = """
-        Sei un membro esperto del team di fundraising e marketing. Analizza la conversazione precedente e genera UNA SOLA domanda
-        di follow-up pertinente e approfondita relativa a strategie di marketing e fundraising. La domanda deve:
-        1. Esplorare aspetti non ancora discussi nel contesto di marketing e fundraising
-        2. Approfondire punti interessanti emersi riguardanti strategie di marketing e fundraising
-        3. Considerare aspetti pratici e implementativi nelle strategie di marketing e fundraising
-        4. Essere specifica e actionable
-        
-        Rispondi SOLO con la domanda.
+Sei un consulente senior specializzato in fundraising e marketing per organizzazioni non profit. Hai appena analizzato la conversazione precedente, in cui sono emersi vari spunti relativi a strategie di marketing e fundraising. Ora devi proporre UNA SOLA domanda di follow-up che:
+
+1. Esplori aspetti non ancora trattati, estendendo la riflessione su strategie di marketing e fundraising.
+2. Approfondisca uno o più punti chiave emersi, puntando a migliorarne la comprensione o l’implementazione pratica.
+3. Sia specifica, orientata all’azione e attuabile, non generica.
+4. Consideri l’applicazione concreta delle strategie discusse (es. canali promozionali, segmentazione dei donatori, metriche di valutazione).
+
+Rispondi esclusivamente con la domanda, senza introduzioni, spiegazioni o altro testo.
         """
         
         try:
@@ -64,17 +64,19 @@ class EnhancedDiscussion:
 
     def get_enhanced_response(self, max_retries=3):
         system_prompt = """
-        Sei un analista esperto di marketing e fundraising. Hai accesso all’intera conversazione. Ora devi produrre una sintesi strutturata della discussione che:
-        - Evidenzi i punti chiave emersi, incluse proposte, obiettivi, dubbi e strategie discusse.
-        - Riassuma in modo chiaro e coerente le principali idee di marketing e fundraising affrontate.
-        - Metta in luce le direzioni future, i potenziali passi operativi e le aree di miglioramento o approfondimento.
-        - Presenti le informazioni in modo ordinato, ad esempio tramite un elenco puntato o numerato.
+Sei un esperto in fundraising e marketing per organizzazioni non profit. Quando rispondi alle domande, offri contenuti estremamente approfonditi, strategici e ricchi di consigli operativi. Le tue risposte dovranno:
+
+- Rifarsi al contesto e ai dettagli emersi in precedenza.
+- Fornire indicazioni pratiche, esempi, best practice del settore, e suggerimenti di implementazione.
+- Considerare risorse, canali, budget, tempi, KPI e metodi di monitoraggio dei risultati.
+- Essere chiare, utili, e orientate all’azione, evitando generalità e vaghezze.
+
+Non ripetere le istruzioni. Rispondi in modo diretto, concreto e professionale.
         """
         
         for attempt in range(max_retries):
             try:
-                messages = [{"role": msg["role"], "content": msg["content"]}
-                            for msg in self.conversation_history]
+                messages = [{"role": msg["role"], "content": msg["content"]} for msg in self.conversation_history]
                 
                 response = self.client.messages.create(
                     model="claude-3-5-sonnet-20241022",
@@ -84,8 +86,8 @@ class EnhancedDiscussion:
                     messages=messages
                 )
                 
-                if hasattr(, 'content') and .content:
-                    return .content[0].text
+                if hasattr(response, 'content') and response.content:
+                    return response.content[0].text
                 else:
                     raise Exception("Risposta API non valida")
                 
@@ -96,7 +98,14 @@ class EnhancedDiscussion:
 
     def generate_summary(self):
         system_prompt = """
-        Analizza la conversazione e crea una sintesi strutturata.
+Sei un analista esperto di marketing e fundraising. Hai accesso all’intera conversazione. Ora devi produrre una sintesi strutturata della discussione che:
+
+- Evidenzi i punti chiave emersi, incluse proposte, obiettivi, dubbi e strategie discusse.
+- Riassuma in modo chiaro e coerente le principali idee di marketing e fundraising affrontate.
+- Metta in luce le direzioni future, i potenziali passi operativi e le aree di miglioramento o approfondimento.
+- Presenti le informazioni in modo ordinato, ad esempio tramite un elenco puntato o numerato.
+
+Rispondi solo con la sintesi, senza premesse o aggiunte non pertinenti.
         """
         
         try:
@@ -195,4 +204,3 @@ def get_updates(discussion_id):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
-

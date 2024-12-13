@@ -21,92 +21,93 @@ class EnhancedDiscussion:
         self.summary = None
         self.error = None
 
-    def get_follow_up_question(self):
+    def get_points_list(self):
+        # Prompt per ottenere la lista di punti fondamentali
         system_prompt = """
-Sei un consulente specializzato in fundraising per organizzazioni non profit. Hai analizzato la conversazione precedente in cui si è parlato di vari aspetti di raccolta fondi. Ora devi proporre UNA SOLA domanda di follow-up che:
+Sei un consulente specializzato in fundraising per organizzazioni non profit. L'utente è alle prime armi e desidera capire come avviare una piccola campagna di raccolta fondi.
 
-1. Tocchi un aspetto del fundraising non ancora affrontato in profondità (ad es. gestione dei piccoli donatori, semplice comunicazione della mission, organizzazione di un piccolo evento di raccolta fondi, strumenti base per raccogliere donazioni online, coinvolgimento di volontari, ecc.).
-2. Utilizzi un linguaggio semplice e chiaro, adatto a principianti del settore.
-3. Inviti a considerare una nuova azione concreta, ma sempre legata al fundraising.
-4. Mantenga l’attenzione su aspetti pratici e di base del fundraising, senza uscire dal suo ambito.
+Il tuo compito è:
+1. Leggere la richiesta e produrre una lista di 5-7 punti fondamentali da considerare per iniziare una piccola iniziativa di fundraising.
+2. I punti devono essere semplici, chiari, tutti strettamente legati al fundraising, e non troppo complessi.
+3. Non approfondire i singoli punti ora, limitati ad elencarli brevemente.
 
-Rispondi solo con la domanda, senza aggiungere spiegazioni o altro testo.
+Rispondi solo con la lista dei punti (ad esempio con un elenco puntato) senza introdurre testo aggiuntivo.
         """
-        
+
         try:
+            # Costruiamo i messaggi da passare all'API
             messages = [
+                # La conversazione finora
                 *[{"role": msg["role"], "content": msg["content"]} for msg in self.conversation_history],
-                {"role": "user", "content": "Genera una domanda di follow-up basata sulla discussione precedente."}
+                # L'utente chiede la lista di punti
+                {"role": "user", "content": "Potresti fornirmi una lista di punti chiave su come avviare una piccola iniziativa di fundraising?"}
             ]
-            
+
             response = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",  
+                model="claude-3-5-sonnet-20241022",
                 max_tokens=8000,
-                temperature=0.9,
+                temperature=0.7,
                 system=system_prompt,
                 messages=messages
             )
-            
+
+            # Estrai il testo della risposta
+            if hasattr(response, 'content') and response.content:
+                list_text = response.content[0].text.strip()
+                return self._parse_points(list_text)
+            else:
+                return ["Definire un obiettivo chiaro", "Identificare il pubblico dei donatori", "Scegliere un canale semplice per raccogliere fondi", "Creare un messaggio breve ed efficace", "Promuovere la campagna con mezzi di base", "Ringraziare e aggiornare i donatori"]
+        
+        except Exception as e:
+            self.error = str(e)
+            return []
+
+    def get_point_detail(self, point):
+        # Prompt per approfondire un singolo punto
+        system_prompt = f"""
+Sei un consulente specializzato in fundraising per organizzazioni non profit. Ora devi approfondire il seguente aspetto:
+
+[PUNTO: "{point}"]
+
+Spiega in modo semplice e adatto a un principiante:
+- Perché questo aspetto è importante nel contesto del fundraising.
+- Come metterlo in pratica in modo chiaro e concreto.
+- Alcuni consigli utili per partire.
+
+Non divagare su altri punti: concentrati solo su questo aspetto del fundraising, mantieni un tono semplice, concreto e strettamente legato al fundraising.
+        """
+
+        try:
+            messages = [
+                *[{"role": msg["role"], "content": msg["content"]} for msg in self.conversation_history],
+                {"role": "user", "content": f"Approfondisci il seguente punto: {point}"}
+            ]
+
+            response = self.client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=8000,
+                temperature=0.7,
+                system=system_prompt,
+                messages=messages
+            )
+
             if hasattr(response, 'content') and response.content:
                 return response.content[0].text.strip()
             else:
-                return "Come potremmo coinvolgere piccoli donatori in modo semplice e continuativo?"
-                
-        except:
-            fallback_questions = [
-                "Come potremmo rendere più chiaro il nostro messaggio ai piccoli donatori?",
-                "In che modo potremmo organizzare un piccolo evento di raccolta fondi semplice da gestire?",
-                "Quale canale online di base potremmo usare per ricevere donazioni?",
-                "Come potremmo mostrare meglio l’impatto delle donazioni ai potenziali sostenitori?",
-                "C’è un modo facile per invitare volontari a supportare una piccola iniziativa di raccolta fondi?"
-            ]
-            return random.choice(fallback_questions)
-
-    def get_enhanced_response(self, max_retries=3):
-        system_prompt = """
-Sei un consulente specializzato in fundraising per organizzazioni non profit. Utilizza uno stile amichevole e discorsivo, adatto a chi ha poca esperienza nel settore.
-
-Nelle tue risposte:
-- Rimani sempre focalizzato su temi strettamente legati al fundraising.
-- Non ripetere sempre gli stessi consigli. Se una strategia è già stata trattata, aggiungi un nuovo punto di vista o un’altra idea semplice.
-- Mantieni il linguaggio chiaro, non tecnico, e proponi suggerimenti facili da mettere in pratica per chi inizia.
-- Mostra varietà di soluzioni (donazioni online semplici, piccoli eventi, comunicazione della mission, coinvolgimento della comunità, gestione di donatori ricorrenti, ecc.), sempre nel fundraising.
-- Mantieni un tono positivo, incoraggiante e informale.
-
-Evita di ripetere le stesse idee e cerca di arricchire la discussione con spunti nuovi ma semplici, senza uscire dal tema del fundraising.
-        """
+                return "Mi dispiace, non sono riuscito ad approfondire questo punto."
         
-        for attempt in range(max_retries):
-            try:
-                messages = [{"role": msg["role"], "content": msg["content"]} for msg in self.conversation_history]
-                
-                response = self.client.messages.create(
-                    model="claude-3-5-sonnet-20241022",
-                    max_tokens=8000,
-                    temperature=0.9,
-                    system=system_prompt,
-                    messages=messages
-                )
-                
-                if hasattr(response, 'content') and response.content:
-                    return response.content[0].text
-                else:
-                    raise Exception("Risposta API non valida")
-                
-            except:
-                if attempt == max_retries - 1:
-                    return "Mi dispiace, si è verificato un errore."
-                time.sleep(2)
+        except Exception as e:
+            return f"Errore durante l'approfondimento: {str(e)}"
 
     def generate_summary(self):
         system_prompt = """
-Sei un esperto di fundraising e devi produrre una breve sintesi della discussione in un linguaggio semplice. Nella sintesi:
+Sei un esperto di fundraising e devi produrre una breve sintesi della discussione in un linguaggio semplice.
 
+Nella sintesi:
 - Riassumi i punti chiave emersi sul fundraising in modo chiaro e comprensibile per un principiante.
-- Evidenzia come la conversazione ha toccato diversi aspetti del fundraising (comunicare la mission, piccoli eventi, canali online semplici, coinvolgimento della comunità, donazioni ricorrenti, ecc.), senza soffermarsi su un solo tema.
+- Mostra come la conversazione ha toccato diversi aspetti del fundraising (obiettivo chiaro, identificazione del pubblico, canali semplici, comunicazione efficace, piccoli eventi, ringraziamenti ai donatori, ecc.).
 - Mantieni un tono amichevole, semplice e coerente, restando strettamente sul tema del fundraising.
-
-La sintesi deve essere breve, utile e facile da capire.
+La sintesi deve essere breve e utile.
         """
         
         try:
@@ -116,7 +117,7 @@ La sintesi deve essere breve, utile e facile da capire.
             response = self.client.messages.create(
                 model="claude-3-5-sonnet-20241022",
                 max_tokens=8000,
-                temperature=0.9,
+                temperature=0.7,
                 system=system_prompt,
                 messages=messages
             )
@@ -138,21 +139,37 @@ La sintesi deve essere breve, utile e facile da capire.
         except:
             return None
 
+    def _parse_points(self, text):
+        # Una funzione semplice per estrarre i punti elenco dalla risposta
+        lines = text.split('\n')
+        points = []
+        for line in lines:
+            # Rimuovi eventuali trattini o asterischi
+            line = line.strip("-•* ").strip()
+            if line:
+                points.append(line)
+        return points
+
 discussions = {}
 
 def run_conversation(discussion_id, initial_question, iterations):
     d = discussions[discussion_id]
     try:
+        # 1. Aggiungi la domanda iniziale dell'utente
         d.conversation_history.append({"role": "user", "content": initial_question})
         
-        for i in range(iterations):
-            response = d.get_enhanced_response()
-            d.conversation_history.append({"role": "assistant", "content": response})
-            
-            if i < iterations - 1:
-                next_question = d.get_follow_up_question()
-                d.conversation_history.append({"role": "user", "content": next_question})
+        # 2. Prima chiamata: ottieni la lista di punti
+        points = d.get_points_list()
+        d.conversation_history.append({"role": "assistant", "content": "\n".join(points)})
         
+        # 3. Approfondisci i punti uno per uno, fino a 'iterations' o alla fine della lista
+        max_points = min(iterations, len(points))
+        for i in range(max_points):
+            point = points[i]
+            detail = d.get_point_detail(point)
+            d.conversation_history.append({"role": "assistant", "content": detail})
+        
+        # 4. Genera la sintesi finale
         d.summary = d.generate_summary()
         d.save_conversation()
     except Exception as e:

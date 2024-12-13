@@ -15,26 +15,31 @@
 
 <div class="chat-wrapper glassy-card">
   <div class="chat-container" id="chat-container">
+    <!-- Messaggio iniziale dell'utente -->
     <div class="message user">
       <div class="avatar user-avatar">👤</div>
       <div class="bubble">
         <p>{{ initial_question }}</p>
       </div>
     </div>
-    <!-- L'indicatore di "pensiero" verrà sempre spostato alla fine con JS -->
   </div>
+  
+  <!-- Indicatore di "sta pensando" sempre presente nel DOM, gestito via classe .hidden -->
   <div class="thinking hidden" id="thinking">
     <div class="typing-indicator">
       <span></span><span></span><span></span>
     </div>
     <p>L'assistente sta pensando...</p>
   </div>
+
   <button id="scroll-bottom-btn" class="scroll-bottom-btn" title="Vai in fondo">↓</button>
+  
   <div class="summary-container hidden" id="summary-container">
     <h3>Sintesi della Discussione</h3>
     <pre id="summary"></pre>
     <button class="copy-btn neon-btn" id="copy-summary-btn">📋 Copia Sintesi</button>
   </div>
+  
   <div class="chat-footer" id="footer-buttons" style="display:none;">
     <a href="/" class="back-btn neon-btn">← Torna alla Pagina Iniziale</a>
   </div>
@@ -51,71 +56,71 @@
   const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
   const copySummaryBtn = document.getElementById('copy-summary-btn');
 
-  let previousMessageCount = 1;
+  // Contiamo già il primo messaggio dell'utente come mostrato
+  let lastMessageCount = 1;
 
   async function fetchUpdates() {
     const res = await fetch(`/get_updates/${discussionId}`);
     const data = await res.json();
 
-    // Rimuove tutti i messaggi assistant e i successivi user (tranne il primo)
-    chatContainer.querySelectorAll('.message.assistant').forEach(m => m.remove());
-    chatContainer.querySelectorAll('.message.user:not(:first-child)').forEach(m => m.remove());
-
     let messages = data.messages || [];
 
-    for (let i = 1; i < messages.length; i++) {
-      const msg = messages[i];
-      let div = document.createElement('div');
-      div.classList.add('message');
-      div.classList.add(msg.role === 'user' ? 'user' : 'assistant');
-
-      let avatar = document.createElement('div');
-      avatar.classList.add('avatar', msg.role === 'user' ? 'user-avatar' : 'assistant-avatar');
-      avatar.textContent = msg.role === 'user' ? '👤' : '🤖';
-
-      let bubble = document.createElement('div');
-      bubble.classList.add('bubble');
-      let p = document.createElement('p');
-      p.textContent = msg.content;
-      bubble.appendChild(p);
-
-      div.appendChild(avatar);
-      div.appendChild(bubble);
-      chatContainer.appendChild(div);
-    }
-
-    // Posiziona l'indicatore di pensiero sempre alla fine, se non è finito
+    // Mostra/nascondi "thinking"
     if (!data.finished) {
       thinking.classList.remove('hidden');
-      chatContainer.appendChild(thinking);
     } else {
       thinking.classList.add('hidden');
     }
 
-    // Aggiorna lo stato della chat
-    if (messages.length !== previousMessageCount) {
-      chatStatus.textContent = `Messaggi: ${messages.length}`;
-      previousMessageCount = messages.length;
-    }
-
-    if (data.finished) {
-      if (data.summary) {
-        summaryContainer.classList.remove('hidden');
-        summaryEl.textContent = data.summary;
+    // Aggiunge solo i messaggi nuovi
+    if (messages.length > lastMessageCount) {
+      for (let i = lastMessageCount; i < messages.length; i++) {
+        const msg = messages[i];
+        const div = document.createElement('div');
+        div.classList.add('message', msg.role === 'user' ? 'user' : 'assistant');
+        
+        let avatar = document.createElement('div');
+        avatar.classList.add('avatar', msg.role === 'user' ? 'user-avatar' : 'assistant-avatar');
+        avatar.textContent = msg.role === 'user' ? '👤' : '🤖';
+        
+        let bubble = document.createElement('div');
+        bubble.classList.add('bubble');
+        let p = document.createElement('p');
+        p.textContent = msg.content;
+        bubble.appendChild(p);
+        
+        div.appendChild(avatar);
+        div.appendChild(bubble);
+        chatContainer.appendChild(div);
       }
-      footerButtons.style.display = 'flex';
-      chatStatus.textContent = "Discussione terminata";
+      
+      // Aggiorna il conteggio
+      lastMessageCount = messages.length;
+      
+      // Scrolla in basso dopo aver aggiunto i nuovi messaggi
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // Scrolla in basso
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    // Aggiorna stato chat
+    if (data.finished) {
+      chatStatus.textContent = "Discussione terminata";
+    } else {
+      chatStatus.textContent = `Messaggi: ${messages.length}`;
+    }
+
+    // Se finito e abbiamo sintesi
+    if (data.finished && data.summary) {
+      summaryContainer.classList.remove('hidden');
+      summaryEl.textContent = data.summary;
+      footerButtons.style.display = 'flex';
+    }
   }
 
   // Polling ogni 3 secondi
   setInterval(fetchUpdates, 3000);
   fetchUpdates();
 
-  // Bottone scroll bottom
+  // Bottone scroll bottom appare se scroll in alto
   chatContainer.addEventListener('scroll', () => {
     const distanceFromBottom = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight);
     if (distanceFromBottom > 200) {
@@ -129,7 +134,7 @@
     chatContainer.scrollTop = chatContainer.scrollHeight;
   });
 
-  // Copia sintesi
+  // Copia sintesi negli appunti
   copySummaryBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(summaryEl.textContent)
       .then(() => {

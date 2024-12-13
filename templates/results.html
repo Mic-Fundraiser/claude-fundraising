@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risultati della Discussione</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Fundraising Assistant Pro</a>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Risultati della Discussione</h1>
+  
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h2 class="card-title">Conversazione</h2>
+          <pre class="conversation p-3 bg-light border rounded">{{conversation}}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h2 class="card-title">Sintesi</h2>
+          <pre class="summary p-3 bg-light border rounded">{{summary}}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="mt-4 text-center">
+    {% if filename %}
+      <p class="text-success">Conversazione salvata in: <strong>{{ filename }}</strong></p>
+    {% else %}
+      <p class="text-danger">Impossibile salvare la conversazione.</p>
+    {% endif %}
+    
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Torna alla pagina iniziale</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

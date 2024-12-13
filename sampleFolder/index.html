@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundraising Assistant Pro</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="gradient-bg">
+
+<div class="top-bar">
+  <div class="logo">💰Fundraising Pro</div>
+  <div class="info-icon" tabindex="0">
+    ℹ
+    <div class="tooltip">
+      <h4>Guida Rapida</h4>
+      <p>1. Inserisci la tua API Key<br>2. Scrivi una domanda iniziale<br>3. Scegli il numero di iterazioni<br>4. Clicca "Avvia Discussione"</p>
+    </div>
+  </div>
+</div>
+
+<div class="center-box glassy-card">
+  <h1>Inizia la tua Discussione</h1>
+  <p style="margin-bottom: 15px;">
+    Sei pronto a ottimizzare le tue strategie di marketing e fundraising?  
+    Con Fundraising Assistant Pro potrai ottenere idee, soluzioni e approfondimenti guidati da un esperto virtuale.
+    Inserisci la tua domanda, il numero di iterazioni e la tua API Key Anthropic per iniziare.
+  </p>
+  <form action="{{ url_for('start') }}" method="post" class="form-container">
+    <label for="api_key">API Key:</label>
+    <input type="password" name="api_key" id="api_key" required placeholder="Inserisci la tua API Key">
+    
+    <label for="initial_question">Domanda Iniziale:</label>
+    <textarea name="initial_question" id="initial_question" rows="4" required placeholder="Es. Come posso aumentare il coinvolgimento dei donatori?"></textarea>
+    
+    <label for="iterations">Iterazioni:</label>
+    <input type="number" name="iterations" id="iterations" value="5" min="1" required>
+    
+    <button type="submit" class="start-btn neon-btn">Avvia Discussione</button>
+  </form>
+</div>
+
+</body>
+</html>

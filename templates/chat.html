@@ -5,10 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chat in corso</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-<!-- Inclusione Marked.js per interpretare il Markdown -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 </head>
 <body class="gradient-bg">
 
@@ -60,7 +56,7 @@
   const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
   const copySummaryBtn = document.getElementById('copy-summary-btn');
 
-  let lastMessageCount = 1; // Primo messaggio dell'utente già visualizzato
+  let lastMessageCount = 1;
 
   async function fetchUpdates() {
     const res = await fetch(`/get_updates/${discussionId}`);
@@ -88,11 +84,9 @@
         
         let bubble = document.createElement('div');
         bubble.classList.add('bubble');
-        
-        // Usare Marked per convertire Markdown in HTML
-        let contentDiv = document.createElement('div');
-        contentDiv.innerHTML = marked(msg.content);
-        bubble.appendChild(contentDiv);
+        let p = document.createElement('p');
+        p.textContent = msg.content;
+        bubble.appendChild(p);
         
         div.appendChild(avatar);
         div.appendChild(bubble);

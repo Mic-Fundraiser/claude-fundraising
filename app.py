@@ -23,14 +23,14 @@ class EnhancedDiscussion:
 
     def get_follow_up_question(self):
         system_prompt = """
-Sei un consulente di fundraising e marketing per organizzazioni non profit. Hai letto la conversazione precedente, e finora si sono toccati alcuni aspetti del fundraising. Ora devi proporre UNA SOLA domanda di follow-up che:
+Sei un consulente specializzato in fundraising per organizzazioni non profit. Hai analizzato la conversazione precedente in cui si è parlato di vari aspetti di raccolta fondi. Ora devi proporre UNA SOLA domanda di follow-up che:
 
-1. Tocchi un nuovo aspetto del fundraising non ancora esaminato o solo accennato in precedenza.
-2. Sia formulata con un linguaggio semplice e chiaro.
-3. Inviti a esplorare un'azione concreta, ma introducendo un tema diverso da quello discusso finora.
-4. Aiuti a spaziare verso un ambito correlato (ad es. coinvolgimento della comunità, storytelling, piccoli eventi locali, strumenti digitali di base), mantenendo il livello semplice e adatto a principianti.
+1. Tocchi un aspetto del fundraising non ancora affrontato in profondità (ad es. gestione dei piccoli donatori, semplice comunicazione della mission, organizzazione di un piccolo evento di raccolta fondi, strumenti base per raccogliere donazioni online, coinvolgimento di volontari, ecc.).
+2. Utilizzi un linguaggio semplice e chiaro, adatto a principianti del settore.
+3. Inviti a considerare una nuova azione concreta, ma sempre legata al fundraising.
+4. Mantenga l’attenzione su aspetti pratici e di base del fundraising, senza uscire dal suo ambito.
 
-Rispondi solo con la domanda, senza aggiunte o spiegazioni.
+Rispondi solo con la domanda, senza aggiungere spiegazioni o altro testo.
         """
         
         try:
@@ -50,29 +50,30 @@ Rispondi solo con la domanda, senza aggiunte o spiegazioni.
             if hasattr(response, 'content') and response.content:
                 return response.content[0].text.strip()
             else:
-                return "Come potremmo sperimentare una piccola iniziativa per farci conoscere in una comunità locale?"
+                return "Come potremmo coinvolgere piccoli donatori in modo semplice e continuativo?"
                 
         except:
             fallback_questions = [
-                "Quale iniziativa semplice potremmo organizzare per coinvolgere la comunità locale?",
-                "Come potremmo raccontare in modo chiaro la nostra missione a chi non ci conosce?",
-                "C’è un canale di comunicazione online di base che potremmo iniziare ad usare per raggiungere nuovi sostenitori?",
-                "Come potremmo rendere più tangibile per i potenziali donatori l’impatto delle nostre attività?",
-                "In che modo potremmo organizzare un piccolo evento informale per far conoscere la causa?"
+                "Come potremmo rendere più chiaro il nostro messaggio ai piccoli donatori?",
+                "In che modo potremmo organizzare un piccolo evento di raccolta fondi semplice da gestire?",
+                "Quale canale online di base potremmo usare per ricevere donazioni?",
+                "Come potremmo mostrare meglio l’impatto delle donazioni ai potenziali sostenitori?",
+                "C’è un modo facile per invitare volontari a supportare una piccola iniziativa di raccolta fondi?"
             ]
             return random.choice(fallback_questions)
 
     def get_enhanced_response(self, max_retries=3):
         system_prompt = """
-Sei un consulente di fundraising per organizzazioni non profit, con uno stile amichevole e discorsivo. Quando rispondi, utilizza un linguaggio semplice, chiaro e adatto a chi è alle prime armi. 
+Sei un consulente specializzato in fundraising per organizzazioni non profit. Utilizza uno stile amichevole e discorsivo, adatto a chi ha poca esperienza nel settore.
 
 Nelle tue risposte:
-- Evita di ripetere sempre gli stessi punti: se il tema è già stato trattato, aggiungi un nuovo angolo di analisi, un esempio diverso o un’altra idea pratica.
-- Mantieni il focus su concetti di base del fundraising, ma prova a esplorare nuovi argomenti connessi (come piccoli eventi, strumenti digitali semplici, raccontare bene la missione, comunicare con i donatori in modo chiaro).
+- Rimani sempre focalizzato su temi strettamente legati al fundraising.
+- Non ripetere sempre gli stessi consigli. Se una strategia è già stata trattata, aggiungi un nuovo punto di vista o un’altra idea semplice.
+- Mantieni il linguaggio chiaro, non tecnico, e proponi suggerimenti facili da mettere in pratica per chi inizia.
+- Mostra varietà di soluzioni (donazioni online semplici, piccoli eventi, comunicazione della mission, coinvolgimento della comunità, gestione di donatori ricorrenti, ecc.), sempre nel fundraising.
 - Mantieni un tono positivo, incoraggiante e informale.
-- Fornisci suggerimenti pratici, esempi semplici e idee facilmente realizzabili.
 
-Non limitarti a ripetere quello già detto; cerca sempre di aggiungere qualcosa di nuovo e utile.
+Evita di ripetere le stesse idee e cerca di arricchire la discussione con spunti nuovi ma semplici, senza uscire dal tema del fundraising.
         """
         
         for attempt in range(max_retries):
@@ -99,14 +100,13 @@ Non limitarti a ripetere quello già detto; cerca sempre di aggiungere qualcosa 
 
     def generate_summary(self):
         system_prompt = """
-Sei un esperto di fundraising ma devi produrre una breve sintesi in un linguaggio semplice e discorsivo. Nella sintesi della conversazione:
+Sei un esperto di fundraising e devi produrre una breve sintesi della discussione in un linguaggio semplice. Nella sintesi:
 
-- Raccogli i punti chiave emersi sulla raccolta fondi in modo semplice.
-- Evidenzia la varietà di spunti toccati (non soffermarti su un solo tema).
-- Mostra come la discussione si è allargata a nuovi aspetti, evitando di ripetere sempre gli stessi concetti.
-- Mantieni il tono chiaro, amichevole e accessibile, come per un principiante.
+- Riassumi i punti chiave emersi sul fundraising in modo chiaro e comprensibile per un principiante.
+- Evidenzia come la conversazione ha toccato diversi aspetti del fundraising (comunicare la mission, piccoli eventi, canali online semplici, coinvolgimento della comunità, donazioni ricorrenti, ecc.), senza soffermarsi su un solo tema.
+- Mantieni un tono amichevole, semplice e coerente, restando strettamente sul tema del fundraising.
 
-La sintesi deve essere breve, chiara e adatta a chi non è esperto, ma vuole capire i concetti fondamentali emersi.
+La sintesi deve essere breve, utile e facile da capire.
         """
         
         try:

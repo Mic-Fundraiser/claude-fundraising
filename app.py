@@ -64,7 +64,12 @@ class EnhancedDiscussion:
 
     def get_enhanced_response(self, max_retries=3):
         system_prompt = """
-        Sei un esperto di fundraising e marketing che fornisce risposte approfondite e strategiche.
+        Sei un analista esperto di marketing e fundraising. Hai accesso all’intera conversazione. Ora devi produrre una sintesi strutturata della discussione che:
+        
+        - Evidenzi i punti chiave emersi, incluse proposte, obiettivi, dubbi e strategie discusse.
+        - Riassuma in modo chiaro e coerente le principali idee di marketing e fundraising affrontate.
+        - Metta in luce le direzioni future, i potenziali passi operativi e le aree di miglioramento o approfondimento.
+        - Presenti le informazioni in modo ordinato, ad esempio tramite un elenco puntato o numerato.
         """
         
         for attempt in range(max_retries):
@@ -80,8 +85,8 @@ class EnhancedDiscussion:
                     messages=messages
                 )
                 
-                if hasattr(response, 'content') and response.content:
-                    return response.content[0].text
+                if hasattr(, 'content') and .content:
+                    return .content[0].text
                 else:
                     raise Exception("Risposta API non valida")
                 

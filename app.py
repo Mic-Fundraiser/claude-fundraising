@@ -23,14 +23,14 @@ class EnhancedDiscussion:
 
     def get_follow_up_question(self):
         system_prompt = """
-Sei un consulente senior specializzato in fundraising e marketing per organizzazioni non profit. Hai appena analizzato la conversazione precedente, in cui sono emersi vari spunti relativi a strategie di marketing e fundraising. Ora devi proporre UNA SOLA domanda di follow-up che:
+Sei un consulente di fundraising e marketing per organizzazioni non profit. Hai letto la conversazione precedente, in cui si sono affrontati temi legati alla raccolta fondi e alla promozione delle donazioni. Ora proponi UNA SOLA domanda di follow-up che:
 
-1. Esplori aspetti non ancora trattati, estendendo la riflessione su strategie di marketing e fundraising.
-2. Approfondisca uno o più punti chiave emersi, puntando a migliorarne la comprensione o l’implementazione pratica.
-3. Sia specifica, orientata all’azione e attuabile, non generica.
-4. Consideri l’applicazione concreta delle strategie discusse (es. canali promozionali, segmentazione dei donatori, metriche di valutazione).
+1. Tocchi un aspetto di fundraising non ancora esaminato a fondo.
+2. Sia formulata con un linguaggio semplice e chiaro.
+3. Inviti a riflettere su un’azione o un approccio concreto, anche di base.
+4. Non richieda necessariamente strategie avanzate o troppo complesse, ma resti su un piano pratico e comprensibile.
 
-Rispondi esclusivamente con la domanda, senza introduzioni, spiegazioni o altro testo.
+Rispondi solo con la domanda, senza aggiunte o spiegazioni.
         """
         
         try:
@@ -50,28 +50,28 @@ Rispondi esclusivamente con la domanda, senza introduzioni, spiegazioni o altro 
             if hasattr(response, 'content') and response.content:
                 return response.content[0].text.strip()
             else:
-                return "Come possiamo sviluppare ulteriormente questo aspetto del progetto di marketing e fundraising?"
+                return "Quale semplice attività possiamo avviare per avvicinare più sostenitori?"
                 
         except:
             fallback_questions = [
-                "Quali sono i prossimi passi concreti per implementare questa strategia di marketing e fundraising?",
-                "Come possiamo misurare l'efficacia di questo approccio?",
-                "Quali ostacoli dovremmo considerare?",
-                "Come adattare la strategia a donatori differenti?",
-                "Quali risorse aggiuntive servono?"
+                "Qual è un primo passo pratico per avviare una piccola campagna di fundraising?",
+                "Come potremmo incentivare anche piccole donazioni in modo semplice?",
+                "C’è un canale di comunicazione di base che potremmo sfruttare meglio?",
+                "Quale azione immediata possiamo intraprendere per farci conoscere da nuovi sostenitori?",
+                "In che modo potremmo rendere più chiaro il nostro messaggio ai potenziali donatori?"
             ]
             return random.choice(fallback_questions)
 
     def get_enhanced_response(self, max_retries=3):
         system_prompt = """
-Sei un esperto in fundraising e marketing per organizzazioni non profit. Quando rispondi alle domande, offri contenuti estremamente approfonditi, strategici e ricchi di consigli operativi. Le tue risposte dovranno:
+Sei un consulente di fundraising per organizzazioni non profit, con uno stile amichevole e discorsivo. Quando rispondi, utilizza un linguaggio semplice e chiaro, evitando tecnicismi complessi. Spiega i concetti in modo alla portata di chi si avvicina per le prime volte al fundraising. Fornisci suggerimenti pratici, esempi concreti e idee facilmente attuabili.
 
-- Rifarsi al contesto e ai dettagli emersi in precedenza.
-- Fornire indicazioni pratiche, esempi, best practice del settore, e suggerimenti di implementazione.
-- Considerare risorse, canali, budget, tempi, KPI e metodi di monitoraggio dei risultati.
-- Essere chiare, utili, e orientate all’azione, evitando generalità e vaghezze.
+Le tue risposte dovranno:
+- Basarsi su ciò che è stato discusso finora.
+- Illustrare strategie di fundraising di base, focalizzandoti su idee semplici e immediate.
+- Mantenere un tono incoraggiante, positivo e informale.
 
-Non ripetere le istruzioni. Rispondi in modo diretto, concreto e professionale.
+Evita istruzioni dirette troppo formali e concentra la tua risposta su consigli pratici, casi reali e suggerimenti di facile applicazione.
         """
         
         for attempt in range(max_retries):
@@ -98,14 +98,13 @@ Non ripetere le istruzioni. Rispondi in modo diretto, concreto e professionale.
 
     def generate_summary(self):
         system_prompt = """
-Sei un analista esperto di marketing e fundraising. Hai accesso all’intera conversazione. Ora devi produrre una sintesi strutturata della discussione che:
+Sei un esperto di fundraising ma devi produrre una breve sintesi in un linguaggio semplice e discorsivo. Nella sintesi della conversazione:
 
-- Evidenzi i punti chiave emersi, incluse proposte, obiettivi, dubbi e strategie discusse.
-- Riassuma in modo chiaro e coerente le principali idee di marketing e fundraising affrontate.
-- Metta in luce le direzioni future, i potenziali passi operativi e le aree di miglioramento o approfondimento.
-- Presenti le informazioni in modo ordinato, ad esempio tramite un elenco puntato o numerato.
+- Raccogli i punti chiave emersi sulla raccolta fondi, evitando concetti troppo complessi.
+- Metti in evidenza le idee pratiche e di base menzionate.
+- Riassumi in poche righe in modo chiaro, accessibile e amichevole.
 
-Rispondi solo con la sintesi, senza premesse o aggiunte non pertinenti.
+La sintesi deve essere breve, chiara e orientata a chi non è esperto, ma vuole capire meglio i concetti fondamentali emersi.
         """
         
         try:

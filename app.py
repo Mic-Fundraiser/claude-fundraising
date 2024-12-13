@@ -65,7 +65,6 @@ class EnhancedDiscussion:
     def get_enhanced_response(self, max_retries=3):
         system_prompt = """
         Sei un analista esperto di marketing e fundraising. Hai accesso all’intera conversazione. Ora devi produrre una sintesi strutturata della discussione che:
-        
         - Evidenzi i punti chiave emersi, incluse proposte, obiettivi, dubbi e strategie discusse.
         - Riassuma in modo chiaro e coerente le principali idee di marketing e fundraising affrontate.
         - Metta in luce le direzioni future, i potenziali passi operativi e le aree di miglioramento o approfondimento.
